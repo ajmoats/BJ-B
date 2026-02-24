@@ -65,13 +65,34 @@ public class ProjectB {
 
     // Linear Algebra Helper Functions
     // 1. Dot Product
-    public static double dotProduct(double[] a, double[] b)
+    public static double dotProduct(double[] a, double[] b){
+        double result = 0;
+        for (int i = 0; i < M; i++) {
+            result += a[i] * b[i];
+        }
+        return result;
+    }
 
     // 2. Scalar Product
-    public static double[] scalarProduct(double k, double[] a)
+    public static double[] scalarProduct(double k, double[] a){
+        double[] result = new double[M];
+        for (int i = 0; i < M; i++) {
+            result[i] = k * a[i];
+        }
+        return result;
+    }
 
     // 3. Array Summation
-    public static double[] arraySum(double[] a, double[] b)
+    public static double[] arraySum(double[] a, double[] b){
+        double[] result = new double[M];
+        for (int i = 0; i < M; i++) {
+            result[i] = a[i] + b[i];
+        }
+        return result;
+    }
 
     // 4. Array Assignment Prediction
-    public static int predictStatus(double[] weights, double[] features)
+    public static int predictStatus(double[] weights, double[] features){
+        double score = dotProduct(weights, features);
+        return (score >= 0) ? 1 : -1; // Return 1 for "real", -1 for "fake"
+    }
