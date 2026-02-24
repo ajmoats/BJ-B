@@ -1,5 +1,5 @@
 import java.util.Scanner;
-import java.util.Random;
+import java.io.*;
 
 /** 
  * Project A, Perceptron for EN.500.132 Bootcamp: Java.
@@ -26,13 +26,42 @@ public class ProjectB {
         try {
             // Load in the data
             loadData("training.txt", trainingX, trainingY, N_TRAIN);
-            loadData("validation.txt", validationX, validationY, N_VAL);
+            loadData("validate.txt", validationX, validationY, N_VAL);
 
             // Train the perceptron
+            PrintWriter weightWriter = new PrintWriter(new File("weights.txt"));
+
+            for (int i = 0; i < N_TRAIN; i++) {
+                int prediction = predictStatus(weights, trainingX[i]);
+
+                // Update the weights if the prediction is incorrect
+                if (prediction != trainingY[i]) {
+                    double[] update = scalarProduct(trainingY[i], trainingX[i]);
+                    weights = arraySum(weights, update);
+                }
+                writeWeightsToFile(weightWriter, weights);
+            }
+            weightWriter.close();
 
 
             // Validate the model
+            PrintWriter predictionWriter = new PrintWriter(new File("predictions.txt"));
+            int correctCount = 0;
 
+            for (int i = 0; i < N_VAL; i++) {
+                int prediction = predictStatus(weights, validationX[i]);
+                recordPrediction(predictionWriter, validationX[i], prediction);
+
+                if (prediction == validationY[i]) {
+                    correctCount++;
+                }
+
+                if (prediction == -1){
+                    displayForgery(validationX[i]);
+                }
+            }
+
+            predictionWriter.close();
 
             // Output the statistics
             displayModelStats(correctCount, N_VAL);
@@ -48,14 +77,23 @@ public class ProjectB {
     // File Processing Helper Functions:
     // 1. Loading Data from a File, X-features and Y-labels
     public static void loadData(String filename, double[][] X, int[] Y, int n){
-        Scanner scanner = new Scanner(new File(filename));
+        File inputFile = new File(filename);
+        Scanner fileIn = new Scanner(new File(filename));
+
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < M; j++) {
-                X[i][j] = scanner.nextDouble();
+                X[i][j] = fileIn.nextDouble();
             }
-            Y[i] = scanner.nextInt();
-            // Finish here
+
+            String status = fileIn.next();
+
+            if (status.equalsIgnoreCase("authentic")){
+                Y[i] = 1; // Real bills represented as 1
+            } else{
+                Y[i] = -1; // Fake bills represented as -1
+            }
         }
+        fileIn.close();
     }
 
     // 2. Weight Writing
@@ -79,7 +117,7 @@ public class ProjectB {
     public static void displayForgery(double[] features){
         System.out.println("Forgery Features:");
         for (int i = 0; i < M; i++) {
-            System.out.printf("%10.5f", features[i]); // Required formatting of 5 digits after the decimal point
+            System.out.printf("%10.4f", features[i]); // Required formatting of 4 digits after the decimal point
         }
         System.out.println(); // Move to the next line after displaying all features
     }
@@ -92,7 +130,7 @@ public class ProjectB {
         System.out.println("Model Performance:");
         System.out.printf("Correct Predictions: %d\n", correct);
         System.out.printf("Incorrect Predictions: %d\n", incorrect);
-        System.out.printf("Accuracy: %.2f%%\n", accuracy);
+        System.out.printf("Accuracy: %.1f%%\n", accuracy);
     }
 
 
