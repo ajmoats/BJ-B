@@ -45,25 +45,58 @@ public class ProjectB {
 
 
     // Helper methods from the Warm-Up
-    // File Processing Helper Functions
-    // 1. Loading Data from a File
-    public static void loadData(String filename, double[][] X, int[] Y, int n)
+    // File Processing Helper Functions:
+    // 1. Loading Data from a File, X-features and Y-labels
+    public static void loadData(String filename, double[][] X, int[] Y, int n){
+        Scanner scanner = new Scanner(new File(filename));
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < M; j++) {
+                X[i][j] = scanner.nextDouble();
+            }
+            Y[i] = scanner.nextInt();
+            // Finish here
+        }
+    }
 
     // 2. Weight Writing
-    public static void writeWeightsToFile(PrintWriter writer, double[] weights)
+    public static void writeWeightsToFile(PrintWriter writer, double[] weights){
+        for (int i = 0; i < M; i++) {
+            writer.printf("%10.5f", weights[i]); // Required formatting of 5 digits after the decimal point
+        }
+        writer.println(); // Move to the next line after writing all weights
+    }
 
 
     // 3. Recording Predictions
-    public static void recordPrediction(PrintWriter writer, double[] features, int prediction)
+    public static void recordPrediction(PrintWriter writer, double[] features, int prediction){
+        for (int i = 0; i < M; i++) {
+            writer.printf("%10.5f", features[i]); // Required formatting of 5 digits after the decimal point
+        }
+        writer.printf("%10.5f\n", prediction); // Write the prediction at the end of the line and newline
+    }
 
     // 4. Forgery Features Display
-    public static void displayForgery(double[] features)
+    public static void displayForgery(double[] features){
+        System.out.println("Forgery Features:");
+        for (int i = 0; i < M; i++) {
+            System.out.printf("%10.5f", features[i]); // Required formatting of 5 digits after the decimal point
+        }
+        System.out.println(); // Move to the next line after displaying all features
+    }
 
 
     // 5. Display of Model Stats
-    public static void displayModelStats(int correct, int total)
+    public static void displayModelStats(int correct, int total){
+        int incorrect = total - correct;
+        double accuracy = (double) correct / total * 100.0;
+        System.out.println("Model Performance:");
+        System.out.printf("Correct Predictions: %d\n", correct);
+        System.out.printf("Incorrect Predictions: %d\n", incorrect);
+        System.out.printf("Accuracy: %.2f%%\n", accuracy);
+    }
 
-    // Linear Algebra Helper Functions
+
+    // Linear Algebra Helper Functions:
     // 1. Dot Product
     public static double dotProduct(double[] a, double[] b){
         double result = 0;
