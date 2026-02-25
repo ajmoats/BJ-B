@@ -31,6 +31,11 @@ public class ProjectB {
             // Train the perceptron
             PrintWriter weightWriter = new PrintWriter(new File("weights.txt"));
 
+            // Output the initial weights to all zeros first
+            writeWeightsToFile(weightWriter, weights);
+
+            System.out.println("Forgery Features:"); // So it only prints once
+
             for (int i = 0; i < N_TRAIN; i++) {
                 int prediction = predictStatus(weights, trainingX[i]);
 
@@ -39,13 +44,14 @@ public class ProjectB {
                     double[] update = scalarProduct(trainingY[i], trainingX[i]);
                     weights = arraySum(weights, update);
                 }
+                // Output iterations to weights.txt
                 writeWeightsToFile(weightWriter, weights);
             }
             weightWriter.close();
 
 
             // Validate the model
-            PrintWriter predictionWriter = new PrintWriter(new File("predictions.txt"));
+            PrintWriter predictionWriter = new PrintWriter(new File("predict.txt"));
             int correctCount = 0;
 
             for (int i = 0; i < N_VAL; i++) {
@@ -68,7 +74,6 @@ public class ProjectB {
 
         } catch (FileNotFoundException e) {
             System.out.println("Error: File not found. Ensure the training and validation files are in the directory.");
-            e.printStackTrace();
         }
     }
 
@@ -76,6 +81,13 @@ public class ProjectB {
     // Helper methods from the Warm-Up
     // File Processing Helper Functions:
     // 1. Loading Data from a File, X-features and Y-labels
+    /**
+     * Loads feature data and labels from a text file.
+     * @param filename the name of the file to read
+     * @param X the 2D array to store features
+     * @param Y the 1D array to store labels (1 for authentic, -1 for forgery)
+     * @param n the number of records to read
+     */
     public static void loadData(String filename, double[][] X, int[] Y, int n){
         File inputFile = new File(filename);
         Scanner fileIn = new Scanner(new File(filename));
@@ -97,6 +109,11 @@ public class ProjectB {
     }
 
     // 2. Weight Writing
+    /**
+     * Writes the current weight vector to a file with 5 decimal places.
+     * @param writer the PrintWriter object
+     * @param weights the weight array
+     */
     public static void writeWeightsToFile(PrintWriter writer, double[] weights){
         for (int i = 0; i < M; i++) {
             writer.printf("%10.5f", weights[i]); // Required formatting of 5 digits after the decimal point
@@ -106,16 +123,25 @@ public class ProjectB {
 
 
     // 3. Recording Predictions
+    /**
+     * Records features and the predicted class to a file with 4 decimal places.
+     * @param writer the PrintWriter object
+     * @param features the feature array
+     * @param prediction the predicted integer class
+     */
     public static void recordPrediction(PrintWriter writer, double[] features, int prediction){
         for (int i = 0; i < M; i++) {
-            writer.printf("%10.5f", features[i]); // Required formatting of 5 digits after the decimal point
+            writer.printf("%10.4f", features[i]); // Required formatting of 5 digits after the decimal point
         }
-        writer.printf("%10.5f\n", prediction); // Write the prediction at the end of the line and newline
+        writer.printf("%10.4f\n", (double) prediction); // Write the prediction at the end of the line and newline
     }
 
     // 4. Forgery Features Display
+    /**
+     * Displays features of a predicted forgery to the console with 4 decimal places.
+     * @param features the feature array
+     */
     public static void displayForgery(double[] features){
-        System.out.println("Forgery Features:");
         for (int i = 0; i < M; i++) {
             System.out.printf("%10.4f", features[i]); // Required formatting of 4 digits after the decimal point
         }
@@ -124,6 +150,11 @@ public class ProjectB {
 
 
     // 5. Display of Model Stats
+    /**
+     * Prints the final performance statistics to the console.
+     * @param correct number of correct predictions
+     * @param total total number of validation records
+     */
     public static void displayModelStats(int correct, int total){
         int incorrect = total - correct;
         double accuracy = (double) correct / total * 100.0;
@@ -136,6 +167,12 @@ public class ProjectB {
 
     // Linear Algebra Helper Functions:
     // 1. Dot Product
+    /**
+     * Computes the dot product of two arrays.
+     * @param a first array
+     * @param b second array
+     * @return the resulting sum of products
+     */
     public static double dotProduct(double[] a, double[] b){
         double result = 0;
         for (int i = 0; i < M; i++) {
@@ -145,6 +182,12 @@ public class ProjectB {
     }
 
     // 2. Scalar Product
+    /**
+     * Multiplies an array by a scalar constant.
+     * @param k the scalar
+     * @param a the array
+     * @return a new array representing the product
+     */
     public static double[] scalarProduct(double k, double[] a){
         double[] result = new double[M];
         for (int i = 0; i < M; i++) {
@@ -154,6 +197,12 @@ public class ProjectB {
     }
 
     // 3. Array Summation
+    /**
+     * Sums two arrays element-wise.
+     * @param a first array
+     * @param b second array
+     * @return a new array representing the sum
+     */
     public static double[] arraySum(double[] a, double[] b){
         double[] result = new double[M];
         for (int i = 0; i < M; i++) {
@@ -163,6 +212,12 @@ public class ProjectB {
     }
 
     // 4. Array Assignment Prediction
+    /**
+     * Predicts the category of a record based on current weights.
+     * @param weights the weight vector
+     * @param features the feature vector
+     * @return 1 for non-negative scores, -1 for negative scores
+     */
     public static int predictStatus(double[] weights, double[] features){
         double score = dotProduct(weights, features);
         return (score >= 0) ? 1 : -1; // Return 1 for "real", -1 for "fake"
